@@ -1,0 +1,301 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: white;
+}
+
+/* ===== TOP 8 CONTAINER ===== */
+.top8er {
+  position: relative;
+  font-size: clamp(1rem, 2vw, 2rem);
+  font-weight: bold;
+  height: 85vh;
+  width: 90vw;
+  max-width: 1200px;
+  max-height: 800px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('/images/konoha.png');
+  background-size: cover;
+  background-position: center center;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.cardholder {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  height: 75%;
+  width: 90%;
+  gap: clamp(0.5rem, 1vw, 1rem);
+}
+
+/* ===== PLAYER CARD STYLES ===== */
+.player {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.player:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.player.one {
+  grid-row: 1 / 3;
+  grid-column: 1 / 3;
+}
+
+.two-fourholder,
+.five-eightholder {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  grid-column: 3 / 7;
+}
+
+.two-fourholder {
+  grid-row: 1 / 2;
+  gap: clamp(0.3rem, 0.5vw, 0.5rem);
+}
+
+.five-eightholder {
+  grid-row: 2 / 3;
+  gap: clamp(0.5rem, 1vw, 1rem);
+}
+
+.player.two, .player.three, .player.four,
+.player.five, .player.six, .player.seven, .player.eight {
+  width: 100%;
+}
+
+/* ===== PLAYER CARD TOP AREA ===== */
+.top {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: top;
+  padding: 0.2rem;
+  height: 90%;
+  width: 100%;
+  background-color: transparent;
+  border-bottom: 1px solid #333;
+  border-radius: 1rem 1rem 0 0;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ===== PLAYER IMAGE HOLDER ===== */
+.imageholder {
+  width: 100%;
+  height: 85%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* ===== PLACEMENT & NAME ===== */
+.number {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #000, 0 0 40px #000;
+  z-index: 10;
+}
+
+.name {
+  position: absolute;
+  bottom: 5%;
+  left: 5%;
+  font-weight: bolder;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  color: #f0f0f0;
+  text-shadow: 0 0 6px #000, 0 0 10px #000, 0 0 14px #000;
+  z-index: 10;
+  text-align: left;
+  max-width: 90%;
+  word-wrap: break-word;
+}
+
+.player.one .number { font-size: clamp(3rem, 6vw, 5rem); }
+.two-fourholder .number { font-size: clamp(2rem, 4vw, 3.2rem); }
+.five-eightholder .number { font-size: clamp(1.8rem, 3.5vw, 2.8rem); }
+
+/* ===== TITLE & DETAILS ===== */
+.title,
+.website,
+.entrant-count {
+  position: absolute;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 6px #000, 2px 2px 10px #000;
+  z-index: 5;
+}
+
+.title { top: 5%; left: 5%; }
+.website { top: 5%; right: 5%; }
+.entrant-count { bottom: 5%; left: 5%; }
+
+/* ===== BUTTONS ===== */
+.download-btn {
+  background-color: #282828;
+  color: #eee;
+  font-weight: bold;
+  padding: clamp(8px, 1.5vw, 12px) clamp(16px, 2.5vw, 20px);
+  margin-bottom: 1rem;
+  border: 2px solid #666;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: clamp(0.9rem, 1.5vw, 1rem);
+}
+
+.download-btn:hover {
+  background-color: #3d3d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== CHARACTER IMAGE CLASSES ===== */
+.imageholder.rashid { background-image: url('/quasi/quasi-images/rashid.jpg'); }
+.imageholder.juri   { background-image: url('/quasi/quasi-images/juri.jpg'); }
+.imageholder.ken    { background-image: url('/quasi/quasi-images/ken.jpg'); }
+.imageholder.luke   { background-image: url('/quasi/quasi-images/luke.jpg'); }
+.imageholder.cammy  { background-image: url('/quasi/quasi-images/cammy.jpg'); }
+.imageholder.guile  { background-image: url('/quasi/quasi-images/guile.jpg'); }
+.imageholder.chunli { background-image: url('/quasi/quasi-images/chunli.jpg'); }
+.imageholder.blanka { background-image: url('/quasi/quasi-images/blanka.jpg'); }
+.imageholder.dhalsim { background-image: url('/quasi/quasi-images/dhalsim.jpg'); }
+.imageholder.manon  { background-image: url('/quasi/quasi-images/manon.jpg'); }
+.imageholder.marisa { background-image: url('/quasi/quasi-images/marisa.jpg'); }
+.imageholder.mai    { background-image: url('/quasi/quasi-images/mai.jpg'); }
+.imageholder.jp     { background-image: url('/quasi/quasi-images/jp.jpg'); }
+.imageholder.akuma  { background-image: url('/quasi/quasi-images/akuma.jpg'); }
+.imageholder.jamie  { background-image: url('/quasi/quasi-images/jamie.jpg'); }
+.imageholder.deejay { background-image: url('/quasi/quasi-images/deejay.jpg'); }
+.imageholder.ed     { background-image: url('/quasi/quasi-images/ed.jpg'); }
+.imageholder.honda  { background-image: url('/quasi/quasi-images/honda.jpg'); }
+.imageholder.kimberly { background-image: url('/quasi/quasi-images/kimberly.jpg'); }
+.imageholder.zangief { background-image: url('/quasi/quasi-images/zangief.jpg'); }
+.imageholder.ryu    { background-image: url('/quasi/quasi-images/ryu.jpg'); }
+
+/* Additional character mappings for the images you have */
+.imageholder.naruto { background-image: url('/quasi/quasi-images/naruto.png'); }
+.imageholder.itachi { background-image: url('/quasi/quasi-images/itachi.png'); }
+.imageholder.jotaro { background-image: url('/quasi/quasi-images/jotaro.png'); }
+.imageholder.yuyu { background-image: url('/quasi/quasi-images/yuyu.png'); }
+.imageholder.mario { background-image: url('/quasi/quasi-images/mario.png'); }
+.imageholder.terry { background-image: url('/quasi/quasi-images/terry.png'); }
+.imageholder.lily { background-image: url('/quasi/quasi-images/lily.png'); }
+.imageholder.elena { background-image: url('/quasi/quasi-images/elena.png'); }
+.imageholder.lamine { background-image: url('/quasi/quasi-images/lamine.png'); }
+.imageholder.mbison { background-image: url('/quasi/quasi-images/mbison.png'); }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+  
+  .top8er {
+    height: 80vh;
+    width: 95vw;
+    font-size: clamp(0.8rem, 3vw, 1.5rem);
+  }
+  
+  .cardholder {
+    gap: clamp(0.2rem, 1vw, 0.5rem);
+  }
+  
+  .two-fourholder,
+  .five-eightholder {
+    gap: clamp(0.2rem, 1vw, 0.5rem);
+  }
+  
+  .inputbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .inputbar input {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top8er {
+    height: 75vh;
+    width: 98vw;
+  }
+  
+  .cardholder {
+    height: 70%;
+    width: 95%;
+  }
+  
+  .player.one .number { font-size: clamp(2rem, 8vw, 3rem); }
+  .two-fourholder .number { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .five-eightholder .number { font-size: clamp(1.2rem, 5vw, 1.8rem); }
+  
+  .name {
+    font-size: clamp(0.8rem, 3vw, 1.2rem);
+  }
+  
+  .title,
+  .website,
+  .entrant-count {
+    font-size: clamp(0.8rem, 3vw, 1rem);
+  }
+}
+
+@media (min-width: 1200px) {
+  .top8er {
+    height: 80vh;
+    width: 80vw;
+  }
+  
+  .cardholder {
+    gap: 1.5rem;
+  }
+  
+  .two-fourholder,
+  .five-eightholder {
+    gap: 1.5rem;
+  }
+} 
