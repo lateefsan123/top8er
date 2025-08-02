@@ -22,6 +22,7 @@ export interface Standing {
   entrant: Entrant;
   character?: string;
   secondaryCharacters?: string[];
+  flag?: string;
 }
 
 export interface TournamentData {
@@ -38,6 +39,7 @@ export interface PlayerCardProps {
   position: 'one' | 'two' | 'three' | 'four' | 'five' | 'six' | 'seven' | 'eight';
   flagSrc: string;
   showFlags?: boolean;
+  customFlag?: string;
 }
 
 export interface Top8DisplayProps {

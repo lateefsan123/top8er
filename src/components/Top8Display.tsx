@@ -253,15 +253,16 @@ const Top8Display: React.FC<Top8DisplayProps> = ({
       <div className="cardholder">
                  {/* First Place */}
          {top8[0] && (
-           <PlayerCard
-             placement={top8[0].placement}
-             entrant={top8[0].entrant}
-             character={top8[0].character}
-             secondaryCharacters={top8[0].secondaryCharacters}
-             position="one"
-             flagSrc={flagImages[0]}
-             showFlags={showFlags}
-           />
+                       <PlayerCard
+              placement={top8[0].placement}
+              entrant={top8[0].entrant}
+              character={top8[0].character}
+              secondaryCharacters={top8[0].secondaryCharacters}
+              position="one"
+              flagSrc={top8[0].flag || flagImages[0]}
+              showFlags={showFlags}
+              customFlag={top8[0].flag}
+            />
          )}
 
                  {/* 2nd-4th Place */}
@@ -275,8 +276,9 @@ const Top8Display: React.FC<Top8DisplayProps> = ({
                  character={top8[i].character}
                  secondaryCharacters={top8[i].secondaryCharacters}
                  position={positions[i]}
-                 flagSrc={flagImages[i]}
+                 flagSrc={top8[i].flag || flagImages[i]}
                  showFlags={showFlags}
+                 customFlag={top8[i].flag}
                />
              )
            ))}
@@ -293,8 +295,9 @@ const Top8Display: React.FC<Top8DisplayProps> = ({
                  character={top8[i].character}
                  secondaryCharacters={top8[i].secondaryCharacters}
                  position={positions[i]}
-                 flagSrc={flagImages[i]}
+                 flagSrc={top8[i].flag || flagImages[i]}
                  showFlags={showFlags}
+                 customFlag={top8[i].flag}
                />
              )
            ))}

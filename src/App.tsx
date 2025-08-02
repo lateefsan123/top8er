@@ -80,6 +80,107 @@ const App: React.FC = () => {
     { name: 'Tech', value: 'tech' }
   ];
 
+  const flagOptions = [
+    { name: 'None', value: '' },
+    { name: 'Afghanistan', value: '/images/Flag_of_Afghanistan.svg.png' },
+    { name: 'Albania', value: '/images/Flag_of_Albania.svg.png' },
+    { name: 'Algeria', value: '/images/Flag_of_Algeria.svg.png' },
+    { name: 'Argentina', value: '/images/Flag_of_Argentina.svg.png' },
+    { name: 'Australia', value: '/images/Flag_of_Australia.svg.png' },
+    { name: 'Austria', value: '/images/Flag_of_Austria.svg.png' },
+    { name: 'Bahrain', value: '/images/Flag_of_Bahrain.svg.png' },
+    { name: 'Bangladesh', value: '/images/Flag_of_Bangladesh.svg.png' },
+    { name: 'Barbados', value: '/images/Flag_of_Barbados.svg.png' },
+    { name: 'Belgium', value: '/images/Flag_of_Belgium.svg.png' },
+    { name: 'Brazil', value: '/images/Flag_of_Brazil.svg.png' },
+    { name: 'Bulgaria', value: '/images/Flag_of_Bulgaria.svg.png' },
+    { name: 'Canada', value: '/images/canada.png' },
+    { name: 'Chile', value: '/images/Flag_of_Chile.svg.png' },
+    { name: 'China', value: '/images/Flag_of_China.svg.png' },
+    { name: 'Colombia', value: '/images/Flag_of_Colombia.svg.png' },
+    { name: 'Costa Rica', value: '/images/Flag_of_Costa_Rica.svg.png' },
+    { name: 'Croatia', value: '/images/Flag_of_Croatia.svg.png' },
+    { name: 'Cuba', value: '/images/Flag_of_Cuba.svg.png' },
+    { name: 'Czech Republic', value: '/images/Flag_of_Czech_Republic.svg.png' },
+    { name: 'Denmark', value: '/images/Flag_of_Denmark.svg.png' },
+    { name: 'Dominican Republic', value: '/images/Flag_of_Dominican_Republic.svg.png' },
+    { name: 'Ecuador', value: '/images/Flag_of_Ecuador.svg.png' },
+    { name: 'Egypt', value: '/images/Flag_of_Egypt.svg.png' },
+    { name: 'El Salvador', value: '/images/Flag_of_El_Salvador.svg.png' },
+    { name: 'Estonia', value: '/images/Flag_of_Estonia.svg.png' },
+    { name: 'Finland', value: '/images/Flag_of_Finland.svg.png' },
+    { name: 'France', value: '/images/Flag_of_France.svg.png' },
+    { name: 'Germany', value: '/images/Flag_of_Germany.svg.png' },
+    { name: 'Greece', value: '/images/Flag_of_Greece.svg.png' },
+    { name: 'Guatemala', value: '/images/Flag_of_Guatemala.svg.png' },
+    { name: 'Honduras', value: '/images/Flag_of_Honduras.svg.png' },
+    { name: 'Hong Kong', value: '/images/Flag_of_Hong_Kong.svg.png' },
+    { name: 'Hungary', value: '/images/Flag_of_Hungary.svg.png' },
+    { name: 'Iceland', value: '/images/Flag_of_Iceland.svg.png' },
+    { name: 'India', value: '/images/Flag_of_India.svg.png' },
+    { name: 'Indonesia', value: '/images/Flag_of_Indonesia.svg.png' },
+    { name: 'Iran', value: '/images/Flag_of_Iran.svg.png' },
+    { name: 'Iraq', value: '/images/Flag_of_Iraq.svg.png' },
+    { name: 'Ireland', value: '/images/Flag_of_Ireland.svg.png' },
+    { name: 'Israel', value: '/images/Flag_of_Israel.svg.png' },
+    { name: 'Italy', value: '/images/Flag_of_Italy.svg.png' },
+    { name: 'Jamaica', value: '/images/Flag_of_Jamaica.svg.png' },
+    { name: 'Japan', value: '/images/Flag_of_Japan.svg.png' },
+    { name: 'Jordan', value: '/images/Flag_of_Jordan.svg.png' },
+    { name: 'Kazakhstan', value: '/images/Flag_of_Kazakhstan.svg.png' },
+    { name: 'Kuwait', value: '/images/Flag_of_Kuwait.svg.png' },
+    { name: 'Latvia', value: '/images/Flag_of_Latvia.svg.png' },
+    { name: 'Lebanon', value: '/images/Flag_of_Lebanon.svg.png' },
+    { name: 'Lithuania', value: '/images/Flag_of_Lithuania.svg.png' },
+    { name: 'Luxembourg', value: '/images/Flag_of_Luxembourg.svg.png' },
+    { name: 'Malaysia', value: '/images/Flag_of_Malaysia.svg.png' },
+    { name: 'Maldives', value: '/images/Flag_of_Maldives.svg.png' },
+    { name: 'Malta', value: '/images/Flag_of_Malta.svg.png' },
+    { name: 'Mexico', value: '/images/Flag_of_Mexico.svg.png' },
+    { name: 'Monaco', value: '/images/Flag_of_Monaco.svg.png' },
+    { name: 'Mongolia', value: '/images/Flag_of_Mongolia.svg.png' },
+    { name: 'Morocco', value: '/images/Flag_of_Morocco.svg.png' },
+    { name: 'Netherlands', value: '/images/Flag_of_Netherlands.svg.png' },
+    { name: 'New Zealand', value: '/images/Flag_of_New_Zealand.svg.png' },
+    { name: 'Nigeria', value: '/images/Flag_of_Nigeria.svg.png' },
+    { name: 'North Korea', value: '/images/Flag_of_North_Korea.svg.png' },
+    { name: 'Norway', value: '/images/Flag_of_Norway.svg.png' },
+    { name: 'Pakistan', value: '/images/Flag_of_Pakistan.svg.png' },
+    { name: 'Panama', value: '/images/Flag_of_Panama.svg.png' },
+    { name: 'Paraguay', value: '/images/Flag_of_Paraguay.svg.png' },
+    { name: 'Peru', value: '/images/Flag_of_Peru.svg.png' },
+    { name: 'Philippines', value: '/images/Flag_of_Philippines.svg.png' },
+    { name: 'Poland', value: '/images/Flag_of_Poland.svg.png' },
+    { name: 'Portugal', value: '/images/Flag_of_Portugal.svg.png' },
+    { name: 'Qatar', value: '/images/Flag_of_Qatar.svg.png' },
+    { name: 'Romania', value: '/images/Flag_of_Romania.svg.png' },
+    { name: 'Russia', value: '/images/Flag_of_Russia.svg.png' },
+    { name: 'Saudi Arabia', value: '/images/Flag_of_Saudi_Arabia.svg.png' },
+    { name: 'Serbia', value: '/images/Flag_of_Serbia.svg.png' },
+    { name: 'Singapore', value: '/images/Flag_of_Singapore.svg.png' },
+    { name: 'Slovakia', value: '/images/Flag_of_Slovakia.svg.png' },
+    { name: 'Slovenia', value: '/images/Flag_of_Slovenia.svg.png' },
+    { name: 'South Africa', value: '/images/Flag_of_South_Africa.svg.png' },
+    { name: 'South Korea', value: '/images/Flag_of_South_Korea.svg.png' },
+    { name: 'Spain', value: '/images/Flag_of_Spain.svg.png' },
+    { name: 'Sri Lanka', value: '/images/Flag_of_Sri_Lanka.svg.png' },
+    { name: 'Sweden', value: '/images/Flag_of_Sweden.svg.png' },
+    { name: 'Switzerland', value: '/images/Flag_of_Switzerland.svg.png' },
+    { name: 'Syria', value: '/images/Flag_of_Syria.svg.png' },
+    { name: 'Taiwan', value: '/images/Flag_of_Taiwan.svg.png' },
+    { name: 'Thailand', value: '/images/Flag_of_Thailand.svg.png' },
+    { name: 'Tunisia', value: '/images/Flag_of_Tunisia.svg.png' },
+    { name: 'Turkey', value: '/images/Flag_of_Turkey.svg.png' },
+    { name: 'Ukraine', value: '/images/Flag_of_Ukraine.svg.png' },
+    { name: 'United Arab Emirates', value: '/images/Flag_of_United_Arab_Emirates.svg.png' },
+    { name: 'United Kingdom', value: '/images/Flag_of_United_Kingdom.svg.png' },
+    { name: 'United States', value: '/images/Flag_of_United_States.svg.png' },
+    { name: 'Uruguay', value: '/images/Flag_of_Uruguay.svg.png' },
+    { name: 'Venezuela', value: '/images/Flag_of_Venezuela.svg.png' },
+    { name: 'Vietnam', value: '/images/Flag_of_Vietnam.svg.png' },
+    { name: 'Yemen', value: '/images/Flag_of_Yemen.svg.png' }
+  ];
+
   const characterOptions = [
     { name: 'None', value: '' },
     { name: 'Ken', value: 'ken' },
@@ -190,31 +291,72 @@ const App: React.FC = () => {
     ));
   };
 
+  const handleFlagChange = (placement: number, flag: string) => {
+    setTop8(prev => prev.map(player => 
+      player.placement === placement 
+        ? { ...player, flag: flag || undefined }
+        : player
+    ));
+  };
+
   const generateImage = async (): Promise<HTMLCanvasElement> => {
     if (!top8Ref.current) {
       throw new Error('No element to capture');
     }
 
-    // Wait for all images to load before capturing
+    // Pre-load all images to avoid CORS issues
     const images = top8Ref.current.querySelectorAll('img');
-    await Promise.all(
-      Array.from(images).map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve; // Continue even if some images fail
-        });
-      })
-    );
+    const imagePromises = Array.from(images).map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve<void>();
+      
+      return new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn('Image load timeout:', img.src);
+          resolve();
+        }, 5000);
+        
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+        img.onerror = () => {
+          clearTimeout(timeout);
+          console.warn('Image load failed:', img.src);
+          resolve();
+        };
+      });
+    });
+
+    // Wait for all images to load
+    await Promise.all(imagePromises);
+
+    // Also wait for background images to load
+    const backgroundImages = top8Ref.current.querySelectorAll('.imageholder');
+    const backgroundPromises = Array.from(backgroundImages).map(holder => {
+      const computedStyle = window.getComputedStyle(holder);
+      const backgroundImage = computedStyle.backgroundImage;
+      if (!backgroundImage || backgroundImage === 'none') return Promise.resolve();
+      
+      const url = backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = url;
+      });
+    });
+
+    await Promise.all(backgroundPromises);
 
     const canvas = await html2canvas(top8Ref.current, {
       scale: 4, // Fixed high quality scale
       useCORS: true,
       backgroundColor: '#000000',
-      allowTaint: false,
+      allowTaint: true, // Allow tainted canvas for external images
       foreignObjectRendering: false,
-      imageTimeout: 15000,
-      logging: false,
+      imageTimeout: 20000,
+      logging: true, // Enable logging to debug issues
       width: top8Ref.current.offsetWidth,
       height: top8Ref.current.offsetHeight,
       removeContainer: true,
@@ -223,6 +365,12 @@ const App: React.FC = () => {
         if (clonedElement) {
           clonedElement.style.transform = 'none';
           clonedElement.style.position = 'relative';
+          
+          // Set crossOrigin for all images in the cloned document
+          const clonedImages = clonedElement.querySelectorAll('img');
+          clonedImages.forEach((img) => {
+            (img as HTMLImageElement).crossOrigin = 'anonymous';
+          });
           
           // Ensure background images are properly loaded
           const imageholders = clonedElement.querySelectorAll('.imageholder');
@@ -258,6 +406,8 @@ const App: React.FC = () => {
     return optimizedCanvas;
   };
 
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
+
   const handleDownload = async (): Promise<void> => {
     if (!top8Ref.current) return;
     
@@ -279,13 +429,15 @@ const App: React.FC = () => {
 
       if (blob) {
         const url = URL.createObjectURL(blob);
+        setGeneratedImageUrl(url);
+        
+        // Also trigger download
         const link = document.createElement('a');
         const date = new Date().toISOString().split('T')[0];
         const sanitizedName = tournamentName.replace(/[^a-zA-Z0-9]/g, '-');
         link.download = `top8-${sanitizedName}-${date}.png`;
         link.href = url;
         link.click();
-        URL.revokeObjectURL(url);
       }
     } catch (error) {
       console.error('Error generating image:', error);
@@ -442,7 +594,7 @@ const App: React.FC = () => {
               </div>
 
               <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#ccc' }}>Manual Player & Character Input</h4>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#ccc' }}>Player & Character Settings</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '0.8rem' }}>
                   {top8.map((player) => (
                     <div key={player.placement} style={{ 
@@ -455,7 +607,7 @@ const App: React.FC = () => {
                         <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', color: '#ffd700' }}>
                           {player.placement}.
                         </span>
-                        <span style={{ fontSize: '0.8rem', color: '#ccc' }}>Player & Character</span>
+                        <span style={{ fontSize: '0.8rem', color: '#ccc' }}>Player Settings</span>
                       </div>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -495,85 +647,86 @@ const App: React.FC = () => {
                             </option>
                           ))}
                         </select>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#ccc' }}>Secondary Characters</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '0.8rem' }}>
-                  {top8.map((player) => (
-                    <div key={player.placement} style={{ 
-                      border: '1px solid #444', 
-                      borderRadius: '6px', 
-                      padding: '0.8rem',
-                      background: 'rgba(255, 255, 255, 0.05)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', color: '#ffd700' }}>
-                          {player.placement}.
-                        </span>
-                        <span style={{ fontSize: '0.8rem', color: '#ccc' }}>Secondary Characters</span>
+                        <select
+                          value={player.flag || ''}
+                          onChange={(e) => handleFlagChange(player.placement, e.target.value)}
+                          style={{
+                            padding: '0.3rem',
+                            borderRadius: '4px',
+                            border: '1px solid #666',
+                            background: '#333',
+                            color: 'white',
+                            fontSize: '0.75rem',
+                            width: '100%'
+                          }}
+                        >
+                          <option value="">Select Flag</option>
+                          {flagOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.name}
+                            </option>
+                          ))}
+                        </select>
+
+                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #444' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: '0.3rem' }}>Secondary Characters:</div>
+                          {(player.secondaryCharacters || []).map((character, index) => (
+                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
+                              <select
+                                value={character}
+                                onChange={(e) => handleSecondaryCharacterChange(player.placement, e.target.value, index)}
+                                style={{
+                                  padding: '0.3rem',
+                                  borderRadius: '4px',
+                                  border: '1px solid #666',
+                                  background: '#333',
+                                  color: 'white',
+                                  fontSize: '0.75rem',
+                                  flex: 1
+                                }}
+                              >
+                                <option value="">Select Secondary Character</option>
+                                {characterOptions.map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => removeSecondaryCharacter(player.placement, index)}
+                                style={{
+                                  background: '#ff4444',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  color: 'white',
+                                  padding: '0.3rem 0.5rem',
+                                  fontSize: '0.7rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                          
+                          <button
+                            onClick={() => addSecondaryCharacter(player.placement)}
+                            style={{
+                              background: '#444',
+                              border: '1px solid #666',
+                              borderRadius: '4px',
+                              color: 'white',
+                              padding: '0.3rem',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              width: '100%'
+                            }}
+                          >
+                            + Add Secondary Character
+                          </button>
+                        </div>
                       </div>
-                      
-                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                         {(player.secondaryCharacters || []).map((character, index) => (
-                           <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                             <select
-                               value={character}
-                               onChange={(e) => handleSecondaryCharacterChange(player.placement, e.target.value, index)}
-                               style={{
-                                 padding: '0.3rem',
-                                 borderRadius: '4px',
-                                 border: '1px solid #666',
-                                 background: '#333',
-                                 color: 'white',
-                                 fontSize: '0.75rem',
-                                 flex: 1
-                               }}
-                             >
-                               <option value="">Select Secondary Character</option>
-                               {characterOptions.map((option) => (
-                                 <option key={option.value} value={option.value}>
-                                   {option.name}
-                                 </option>
-                               ))}
-                             </select>
-                             <button
-                               onClick={() => removeSecondaryCharacter(player.placement, index)}
-                               style={{
-                                 background: '#ff4444',
-                                 border: 'none',
-                                 borderRadius: '4px',
-                                 color: 'white',
-                                 padding: '0.3rem 0.5rem',
-                                 fontSize: '0.7rem',
-                                 cursor: 'pointer'
-                               }}
-                             >
-                               ×
-                             </button>
-                           </div>
-                         ))}
-                         
-                         <button
-                           onClick={() => addSecondaryCharacter(player.placement)}
-                           style={{
-                             background: '#444',
-                             border: '1px solid #666',
-                             borderRadius: '4px',
-                             color: 'white',
-                             padding: '0.3rem',
-                             fontSize: '0.75rem',
-                             cursor: 'pointer',
-                             marginTop: '0.2rem'
-                           }}
-                         >
-                           + Add Secondary Character
-                         </button>
-                       </div>
                     </div>
                   ))}
                 </div>
@@ -718,6 +871,61 @@ const App: React.FC = () => {
             logoImage={logoImage}
           />
       </div>
+
+      {/* Generated Image Display - Right-click to Save As */}
+      {generatedImageUrl && (
+        <div style={{ 
+          marginTop: '2rem', 
+          textAlign: 'center',
+          padding: '1rem',
+          background: 'rgba(0, 0, 0, 0.8)',
+          borderRadius: '8px'
+        }}>
+          <h3 style={{ color: '#fff', marginBottom: '1rem' }}>Generated Image</h3>
+          <p style={{ color: '#ccc', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Click on the image below to download it as a PNG file, or right-click and select "Save image as..."
+          </p>
+          <a 
+            href={generatedImageUrl} 
+            download={`top8-${tournamentName.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.png`}
+            style={{ 
+              display: 'inline-block',
+              textDecoration: 'none'
+            }}
+          >
+            <img 
+              src={generatedImageUrl} 
+              alt="Generated Top 8" 
+              style={{ 
+                maxWidth: '100%', 
+                height: 'auto',
+                border: '2px solid #444',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            />
+          </a>
+          <div style={{ marginTop: '1rem' }}>
+            <button
+              onClick={() => {
+                setGeneratedImageUrl('');
+                URL.revokeObjectURL(generatedImageUrl);
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#666',
+                border: 'none',
+                borderRadius: '4px',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              Clear Image
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

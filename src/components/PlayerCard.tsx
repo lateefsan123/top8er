@@ -9,7 +9,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   secondaryCharacters,
   position, 
   flagSrc,
-  showFlags = true
+  showFlags = true,
+  customFlag
 }) => {
   const formatPlayerName = (fullName: string = ''): string => {
     if (!fullName.includes('|')) return fullName.trim();
