@@ -1,4 +1,24 @@
-export async function fetchTop8(slug) {
+import { TournamentData, Standing } from '../types';
+
+interface StartGGResponse {
+  data?: {
+    event?: {
+      tournament?: {
+        name: string;
+      };
+      numEntrants: number;
+      standings?: {
+        nodes: Standing[];
+      };
+    };
+  };
+  errors?: Array<{
+    message: string;
+    locations?: Array<{ line: number; column: number }>;
+  }>;
+}
+
+export async function fetchTop8(slug: string): Promise<TournamentData> {
   const query = `
     query EventStandings($slug: String!) {
       event(slug: $slug) {
@@ -42,10 +62,18 @@ export async function fetchTop8(slug) {
       }),
     });
 
-    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result: StartGGResponse = await response.json();
+    console.log("Raw API response:", result);
 
     if (!result?.data?.event) {
       console.error("[Start.gg Error] Invalid response or missing event data:", result);
+      if (result.errors) {
+        console.error("API Errors:", result.errors);
+      }
       throw new Error("Failed to fetch event data from Start.gg.");
     }
 
@@ -60,10 +88,6 @@ export async function fetchTop8(slug) {
     };
   } catch (error) {
     console.error("[Start.gg Fetch Error]", error);
-    return {
-      tournamentName: "Tournament",
-      entrantCount: 0,
-      standings: [],
-    };
+    throw error;
   }
-}
+} 
