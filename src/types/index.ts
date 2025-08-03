@@ -9,6 +9,15 @@ export interface Participant {
   user?: {
     id: string;
     authorizations?: Authorization[];
+    location?: {
+      country?: string;
+      state?: string;
+      city?: string;
+    };
+    images?: Array<{
+      type: string;
+      url: string;
+    }>;
   };
 }
 

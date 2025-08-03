@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import { fetchTop8 } from './utils/fetchtop8';
 import { characterImages } from './utils/CharacterImages';
+import { getFlagFromLocation } from './utils/CountryToFlag';
+import { loadPlayerCharacterData, getPrimaryCharacter } from './utils/PlayerCharacterMap';
 import { Standing, Entrant } from './types';
 import Top8Display from './components/Top8Display';
 import ColorPicker from './components/ColorPicker';
@@ -55,7 +57,7 @@ const App: React.FC = () => {
   const [entrantCount, setEntrantCount] = useState<number>(2048);
   const [cornerColor1, setCornerColor1] = useState<string>('#ff007a');
   const [cornerColor2, setCornerColor2] = useState<string>('#00d4ff');
-  const [cornerDesign, setCornerDesign] = useState<string>('gradient');
+  const [cornerDesign, setCornerDesign] = useState<string>('double-triangle');
   const [useDualColors, setUseDualColors] = useState<boolean>(true);
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -65,9 +67,10 @@ const App: React.FC = () => {
   const [customBackground, setCustomBackground] = useState<string>('');
   const [customLogo, setCustomLogo] = useState<string>('');
 
-
-
   const cornerDesignOptions = [
+    { name: 'Banner Swoosh', value: 'banner-swoosh' },
+    { name: 'Red & Yellow Accent', value: 'red-yellow-accent' },
+    { name: 'Double Triangle', value: 'double-triangle' },
     { name: 'Gradient', value: 'gradient' },
     { name: 'Solid Border', value: 'solid' },
     { name: 'Diagonal Split', value: 'diagonal' },
@@ -300,110 +303,83 @@ const App: React.FC = () => {
   };
 
   const generateImage = async (): Promise<HTMLCanvasElement> => {
-    if (!top8Ref.current) {
-      throw new Error('No element to capture');
-    }
+    if (!top8Ref.current) throw new Error('No element to capture');
 
-    // Pre-load all images to avoid CORS issues
-    const images = top8Ref.current.querySelectorAll('img');
-    const imagePromises = Array.from(images).map(img => {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve<void>();
-      
-      return new Promise<void>((resolve) => {
-        const timeout = setTimeout(() => {
-          console.warn('Image load timeout:', img.src);
-          resolve();
-        }, 5000);
-        
-        img.onload = () => {
-          clearTimeout(timeout);
-          resolve();
-        };
-        img.onerror = () => {
-          clearTimeout(timeout);
-          console.warn('Image load failed:', img.src);
-          resolve();
-        };
+    const element = top8Ref.current.querySelector('.top8er') as HTMLElement;
+    if (!element) throw new Error('No .top8er element found');
+
+    // Store original styles to restore later
+    const originalPosition = element.style.position;
+    const originalDisplay = element.style.display;
+    const originalOverflow = element.style.overflow;
+    const originalTransform = element.style.transform;
+    const originalMargin = element.style.margin;
+    const originalPadding = element.style.padding;
+    const originalJustifyContent = element.style.justifyContent;
+    const originalAlignItems = element.style.alignItems;
+    
+    // Temporarily apply styles for capture but preserve centering
+    element.style.position = 'relative';
+    element.style.display = 'flex';
+    element.style.justifyContent = 'center';
+    element.style.alignItems = 'center';
+    element.style.overflow = 'visible';
+    element.style.transform = 'none';
+    element.style.margin = '0';
+    element.style.padding = '0';
+
+    try {
+      // Wait for all images to load
+      const images = element.querySelectorAll('img');
+      const imagePromises = Array.from(images).map(img => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
       });
-    });
 
-    // Wait for all images to load
-    await Promise.all(imagePromises);
+      await Promise.all(imagePromises);
 
-    // Also wait for background images to load
-    const backgroundImages = top8Ref.current.querySelectorAll('.imageholder');
-    const backgroundPromises = Array.from(backgroundImages).map(holder => {
-      const computedStyle = window.getComputedStyle(holder);
-      const backgroundImage = computedStyle.backgroundImage;
-      if (!backgroundImage || backgroundImage === 'none') return Promise.resolve();
-      
-      const url = backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-        img.src = url;
+      // Also wait for background images
+      const backgroundImages = element.querySelectorAll('.imageholder');
+      const backgroundPromises = Array.from(backgroundImages).map(holder => {
+        const url = window.getComputedStyle(holder).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
+        if (!url) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = url;
+        });
       });
-    });
 
-    await Promise.all(backgroundPromises);
+      await Promise.all(backgroundPromises);
 
-    const canvas = await html2canvas(top8Ref.current, {
-      scale: 4, // Fixed high quality scale
-      useCORS: true,
-      backgroundColor: '#000000',
-      allowTaint: true, // Allow tainted canvas for external images
-      foreignObjectRendering: false,
-      imageTimeout: 20000,
-      logging: true, // Enable logging to debug issues
-      width: top8Ref.current.offsetWidth,
-      height: top8Ref.current.offsetHeight,
-      removeContainer: true,
-      onclone: (clonedDoc) => {
-        const clonedElement = clonedDoc.querySelector('.top8er') as HTMLElement;
-        if (clonedElement) {
-          clonedElement.style.transform = 'none';
-          clonedElement.style.position = 'relative';
-          
-          // Set crossOrigin for all images in the cloned document
-          const clonedImages = clonedElement.querySelectorAll('img');
-          clonedImages.forEach((img) => {
-            (img as HTMLImageElement).crossOrigin = 'anonymous';
-          });
-          
-          // Ensure background images are properly loaded
-          const imageholders = clonedElement.querySelectorAll('.imageholder');
-          imageholders.forEach((holder) => {
-            const computedStyle = window.getComputedStyle(holder);
-            const backgroundImage = computedStyle.backgroundImage;
-            if (backgroundImage && backgroundImage !== 'none') {
-              (holder as HTMLElement).style.backgroundImage = backgroundImage;
-            }
-          });
-        }
-      }
-    });
+      // Generate the canvas
+      const canvas = await html2canvas(element, {
+        scale: 2, // For better quality
+        useCORS: true,
+        backgroundColor: null,
+        allowTaint: true,
+        removeContainer: true,
+        foreignObjectRendering: false,
+        logging: false
+      });
 
-    // Apply final quality optimization
-    const optimizedCanvas = document.createElement('canvas');
-    const ctx = optimizedCanvas.getContext('2d');
-    
-    if (!ctx) {
-      throw new Error('Could not get canvas context');
+      return canvas;
+    } finally {
+      // Restore original styling immediately
+      element.style.position = originalPosition;
+      element.style.display = originalDisplay;
+      element.style.overflow = originalOverflow;
+      element.style.transform = originalTransform;
+      element.style.margin = originalMargin;
+      element.style.padding = originalPadding;
+      element.style.justifyContent = originalJustifyContent;
+      element.style.alignItems = originalAlignItems;
     }
-
-    const targetWidth = canvas.width * 1.5;
-    const targetHeight = canvas.height * 1.5;
-    
-    optimizedCanvas.width = targetWidth;
-    optimizedCanvas.height = targetHeight;
-    
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
-    
-    return optimizedCanvas;
   };
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
@@ -431,7 +407,6 @@ const App: React.FC = () => {
         const url = URL.createObjectURL(blob);
         setGeneratedImageUrl(url);
         
-        // Also trigger download
         const link = document.createElement('a');
         const date = new Date().toISOString().split('T')[0];
         const sanitizedName = tournamentName.replace(/[^a-zA-Z0-9]/g, '-');
@@ -456,6 +431,9 @@ const App: React.FC = () => {
       const slug = url.replace('https://www.start.gg/', '').replace(/\/$/, '');
       console.log('Extracted slug:', slug);
       
+      // Load player character data
+      await loadPlayerCharacterData();
+      
       const { tournamentName, entrantCount, standings } = await fetchTop8(slug);
       console.log('API Response:', { tournamentName, entrantCount, standings });
       
@@ -477,12 +455,33 @@ const App: React.FC = () => {
         console.log('Processing entry:', entry);
         const rawName = entry?.entrant?.name?.toLowerCase() || '';
         const playerName = rawName.includes('|') ? rawName.split('|')[1].trim() : rawName;
+        
+        // Try to get character from database
+        const databaseCharacter = getPrimaryCharacter(entry.entrant.name);
         const overrideCharacter = manualOverrides[playerName];
         const fallbackCharacter = Object.keys(characterImages)[i] || null;
 
+        console.log(`Player ${entry.entrant.name} character detection:`, {
+          databaseCharacter,
+          overrideCharacter,
+          fallbackCharacter
+        });
+
+        // Try to get flag from location data
+        let flag: string | undefined;
+        if (entry?.entrant?.participants?.[0]?.user?.location) {
+          const location = entry.entrant.participants[0].user.location;
+          console.log(`Player ${entry.entrant.name} location data:`, location);
+          flag = getFlagFromLocation(location) || undefined;
+          console.log(`Player ${entry.entrant.name} detected flag:`, flag);
+        } else {
+          console.log(`Player ${entry.entrant.name} has no location data`);
+        }
+
         return {
           ...entry,
-          character: overrideCharacter || entry.character || fallbackCharacter || undefined,
+          character: databaseCharacter || overrideCharacter || entry.character || fallbackCharacter || undefined,
+          flag: flag,
         };
       });
 
@@ -543,343 +542,344 @@ const App: React.FC = () => {
         />
       )}
 
-             {showSettings && (
-         <div style={{
-           background: 'rgba(0, 0, 0, 0.9)',
-           padding: '1rem',
-           borderRadius: '8px',
-           marginBottom: '0.5rem',
-           color: 'white',
-           maxWidth: '1200px',
-           fontSize: '0.9rem'
-         }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
-             <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Settings</h3>
-             <button
-               onClick={() => setShowSettings(false)}
-               style={{
-                 background: 'none',
-                 border: 'none',
-                 color: '#ccc',
-                 fontSize: '1.2rem',
-                 cursor: 'pointer',
-                 padding: '0.2rem 0.5rem'
-               }}
-             >
-               ×
-             </button>
-           </div>
-           
-                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={showFlags}
-                    onChange={(e) => setShowFlags(e.target.checked)}
-                  />
-                  Show Flags
-                </label>
-              </div>
+      {showSettings && (
+        <div style={{
+          background: 'rgba(0, 0, 0, 0.9)',
+          padding: '1rem',
+          borderRadius: '8px',
+          marginBottom: '0.5rem',
+          color: 'white',
+          maxWidth: '1200px',
+          fontSize: '0.9rem'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Settings</h3>
+            <button
+              onClick={() => setShowSettings(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#ccc',
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                padding: '0.2rem 0.5rem'
+              }}
+            >
+              ×
+            </button>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                <input
+                  type="checkbox"
+                  checked={showFlags}
+                  onChange={(e) => setShowFlags(e.target.checked)}
+                />
+                Show Flags
+              </label>
+            </div>
 
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={useDualColors}
-                    onChange={(e) => setUseDualColors(e.target.checked)}
-                  />
-                  Use Primary + Secondary Colors
-                </label>
-              </div>
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+                <input
+                  type="checkbox"
+                  checked={useDualColors}
+                  onChange={(e) => setUseDualColors(e.target.checked)}
+                />
+                Use Primary + Secondary Colors
+              </label>
+            </div>
 
-              <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#ccc' }}>Player & Character Settings</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '0.8rem' }}>
-                  {top8.map((player) => (
-                    <div key={player.placement} style={{ 
-                      border: '1px solid #444', 
-                      borderRadius: '6px', 
-                      padding: '0.8rem',
-                      background: 'rgba(255, 255, 255, 0.05)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', color: '#ffd700' }}>
-                          {player.placement}.
-                        </span>
-                        <span style={{ fontSize: '0.8rem', color: '#ccc' }}>Player Settings</span>
-                      </div>
+            <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#ccc' }}>Player & Character Settings</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '0.8rem' }}>
+                {top8.map((player) => (
+                  <div key={player.placement} style={{ 
+                    border: '1px solid #444', 
+                    borderRadius: '6px', 
+                    padding: '0.8rem',
+                    background: 'rgba(255, 255, 255, 0.05)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', minWidth: '40px', color: '#ffd700' }}>
+                        {player.placement}.
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#ccc' }}>Player Settings</span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      <input
+                        type="text"
+                        placeholder="Player Name (e.g., Team Liquid | Daigo)"
+                        value={player.entrant.name}
+                        onChange={(e) => handlePlayerNameChange(player.placement, e.target.value)}
+                        style={{
+                          padding: '0.3rem',
+                          borderRadius: '4px',
+                          border: '1px solid #666',
+                          background: '#333',
+                          color: 'white',
+                          fontSize: '0.75rem',
+                          width: '100%'
+                        }}
+                      />
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                        <input
-                          type="text"
-                          placeholder="Player Name (e.g., Team Liquid | Daigo)"
-                          value={player.entrant.name}
-                          onChange={(e) => handlePlayerNameChange(player.placement, e.target.value)}
-                          style={{
-                            padding: '0.3rem',
-                            borderRadius: '4px',
-                            border: '1px solid #666',
-                            background: '#333',
-                            color: 'white',
-                            fontSize: '0.75rem',
-                            width: '100%'
-                          }}
-                        />
+                      <select
+                        value={player.character || ''}
+                        onChange={(e) => handleCharacterChange(player.placement, e.target.value)}
+                        style={{
+                          padding: '0.3rem',
+                          borderRadius: '4px',
+                          border: '1px solid #666',
+                          background: '#333',
+                          color: 'white',
+                          fontSize: '0.75rem',
+                          width: '100%'
+                        }}
+                      >
+                        <option value="">Select Character</option>
+                        {characterOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={player.flag || ''}
+                        onChange={(e) => handleFlagChange(player.placement, e.target.value)}
+                        style={{
+                          padding: '0.3rem',
+                          borderRadius: '4px',
+                          border: '1px solid #666',
+                          background: '#333',
+                          color: 'white',
+                          fontSize: '0.75rem',
+                          width: '100%'
+                        }}
+                      >
+                        <option value="">Select Flag</option>
+                        {flagOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #444' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: '0.3rem' }}>Secondary Characters:</div>
+                        {(player.secondaryCharacters || []).map((character, index) => (
+                          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
+                            <select
+                              value={character}
+                              onChange={(e) => handleSecondaryCharacterChange(player.placement, e.target.value, index)}
+                              style={{
+                                padding: '0.3rem',
+                                borderRadius: '4px',
+                                border: '1px solid #666',
+                                background: '#333',
+                                color: 'white',
+                                fontSize: '0.75rem',
+                                flex: 1
+                              }}
+                            >
+                              <option value="">Select Secondary Character</option>
+                              {characterOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.name}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => removeSecondaryCharacter(player.placement, index)}
+                              style={{
+                                background: '#ff4444',
+                                border: 'none',
+                                borderRadius: '4px',
+                                color: 'white',
+                                padding: '0.3rem 0.5rem',
+                                fontSize: '0.7rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
                         
-                        <select
-                          value={player.character || ''}
-                          onChange={(e) => handleCharacterChange(player.placement, e.target.value)}
+                        <button
+                          onClick={() => addSecondaryCharacter(player.placement)}
                           style={{
-                            padding: '0.3rem',
-                            borderRadius: '4px',
+                            background: '#444',
                             border: '1px solid #666',
-                            background: '#333',
+                            borderRadius: '4px',
                             color: 'white',
+                            padding: '0.3rem',
                             fontSize: '0.75rem',
+                            cursor: 'pointer',
                             width: '100%'
                           }}
                         >
-                          <option value="">Select Character</option>
-                          {characterOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.name}
-                            </option>
-                          ))}
-                        </select>
-
-                        <select
-                          value={player.flag || ''}
-                          onChange={(e) => handleFlagChange(player.placement, e.target.value)}
-                          style={{
-                            padding: '0.3rem',
-                            borderRadius: '4px',
-                            border: '1px solid #666',
-                            background: '#333',
-                            color: 'white',
-                            fontSize: '0.75rem',
-                            width: '100%'
-                          }}
-                        >
-                          <option value="">Select Flag</option>
-                          {flagOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.name}
-                            </option>
-                          ))}
-                        </select>
-
-                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #444' }}>
-                          <div style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: '0.3rem' }}>Secondary Characters:</div>
-                          {(player.secondaryCharacters || []).map((character, index) => (
-                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
-                              <select
-                                value={character}
-                                onChange={(e) => handleSecondaryCharacterChange(player.placement, e.target.value, index)}
-                                style={{
-                                  padding: '0.3rem',
-                                  borderRadius: '4px',
-                                  border: '1px solid #666',
-                                  background: '#333',
-                                  color: 'white',
-                                  fontSize: '0.75rem',
-                                  flex: 1
-                                }}
-                              >
-                                <option value="">Select Secondary Character</option>
-                                {characterOptions.map((option) => (
-                                  <option key={option.value} value={option.value}>
-                                    {option.name}
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                onClick={() => removeSecondaryCharacter(player.placement, index)}
-                                style={{
-                                  background: '#ff4444',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  color: 'white',
-                                  padding: '0.3rem 0.5rem',
-                                  fontSize: '0.7rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                          
-                          <button
-                            onClick={() => addSecondaryCharacter(player.placement)}
-                            style={{
-                              background: '#444',
-                              border: '1px solid #666',
-                              borderRadius: '4px',
-                              color: 'white',
-                              padding: '0.3rem',
-                              fontSize: '0.75rem',
-                              cursor: 'pointer',
-                              width: '100%'
-                            }}
-                          >
-                            + Add Secondary Character
-                          </button>
-                        </div>
+                          + Add Secondary Character
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
+            </div>
 
-             <div>
-               <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
-                 Corner Design:
-               </label>
-               <select
-                 value={cornerDesign}
-                 onChange={(e) => setCornerDesign(e.target.value)}
-                 style={{
-                   padding: '0.3rem',
-                   borderRadius: '4px',
-                   border: '1px solid #666',
-                   background: '#333',
-                   color: 'white',
-                   width: '100%',
-                   fontSize: '0.8rem',
-                   marginBottom: '0.3rem'
-                 }}
-               >
-                 {cornerDesignOptions.map((option) => (
-                   <option key={option.value} value={option.value}>
-                     {option.name}
-                   </option>
-                 ))}
-               </select>
-             </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
+                Corner Design:
+              </label>
+              <select
+                value={cornerDesign}
+                onChange={(e) => setCornerDesign(e.target.value)}
+                style={{
+                  padding: '0.3rem',
+                  borderRadius: '4px',
+                  border: '1px solid #666',
+                  background: '#333',
+                  color: 'white',
+                  width: '100%',
+                  fontSize: '0.8rem',
+                  marginBottom: '0.3rem'
+                }}
+              >
+                {cornerDesignOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-             <div>
-               <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
-                 Background Image:
-               </label>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                 <input
-                   type="file"
-                   accept="image/*"
-                   onChange={handleBackgroundUpload}
-                   style={{ display: 'none' }}
-                   id="background-upload"
-                 />
-                 <label
-                   htmlFor="background-upload"
-                   style={{
-                     padding: '0.3rem 0.6rem',
-                     background: '#444',
-                     border: '1px solid #666',
-                     borderRadius: '4px',
-                     cursor: 'pointer',
-                     fontSize: '0.75rem',
-                     color: 'white'
-                   }}
-                 >
-                   Upload Background
-                 </label>
-                 {customBackground && (
-                   <button
-                     onClick={() => {
-                       setCustomBackground('');
-                       setBackgroundImage('/images/drop-your-favorite-wallpaper-panel-to-turn-into-a-wallpaper-v0-so4c7wbrib0f1.png');
-                     }}
-                     style={{
-                       padding: '0.3rem 0.6rem',
-                       background: '#d32f2f',
-                       border: '1px solid #b71c1c',
-                       borderRadius: '4px',
-                       cursor: 'pointer',
-                       fontSize: '0.75rem',
-                       color: 'white'
-                     }}
-                   >
-                     Remove
-                   </button>
-                 )}
-               </div>
-             </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
+                Background Image:
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBackgroundUpload}
+                  style={{ display: 'none' }}
+                  id="background-upload"
+                />
+                <label
+                  htmlFor="background-upload"
+                  style={{
+                    padding: '0.3rem 0.6rem',
+                    background: '#444',
+                    border: '1px solid #666',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.75rem',
+                    color: 'white'
+                  }}
+                >
+                  Upload Background
+                </label>
+                {customBackground && (
+                  <button
+                    onClick={() => {
+                      setCustomBackground('');
+                      setBackgroundImage('/images/drop-your-favorite-wallpaper-panel-to-turn-into-a-wallpaper-v0-so4c7wbrib0f1.png');
+                    }}
+                    style={{
+                      padding: '0.3rem 0.6rem',
+                      background: '#d32f2f',
+                      border: '1px solid #b71c1c',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
 
-             <div>
-               <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
-                 Logo:
-               </label>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                 <input
-                   type="file"
-                   accept="image/*"
-                   onChange={handleLogoUpload}
-                   style={{ display: 'none' }}
-                   id="logo-upload"
-                 />
-                 <label
-                   htmlFor="logo-upload"
-                   style={{
-                     padding: '0.3rem 0.6rem',
-                     background: '#444',
-                     border: '1px solid #666',
-                     borderRadius: '4px',
-                     cursor: 'pointer',
-                     fontSize: '0.75rem',
-                     color: 'white'
-                   }}
-                 >
-                   Upload Logo
-                 </label>
-                 {customLogo && (
-                   <button
-                     onClick={() => {
-                       setCustomLogo('');
-                       setLogoImage('/images/ceo.png');
-                     }}
-                     style={{
-                       padding: '0.3rem 0.6rem',
-                       background: '#d32f2f',
-                       border: '1px solid #b71c1c',
-                       borderRadius: '4px',
-                       cursor: 'pointer',
-                       fontSize: '0.75rem',
-                       color: 'white'
-                     }}
-                   >
-                     Remove
-                   </button>
-                 )}
-               </div>
-             </div>
-           </div>
-         </div>
-       )}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
+                Logo:
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  style={{ display: 'none' }}
+                  id="logo-upload"
+                />
+                <label
+                  htmlFor="logo-upload"
+                  style={{
+                    padding: '0.3rem 0.6rem',
+                    background: '#444',
+                    border: '1px solid #666',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.75rem',
+                    color: 'white'
+                  }}
+                >
+                  Upload Logo
+                </label>
+                {customLogo && (
+                  <button
+                    onClick={() => {
+                      setCustomLogo('');
+                      setLogoImage('/images/ceo.png');
+                    }}
+                    style={{
+                      padding: '0.3rem 0.6rem',
+                      background: '#d32f2f',
+                      border: '1px solid #b71c1c',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div ref={top8Ref}>
-                                   <Top8Display
-            top8={top8}
-            tournamentName={tournamentName}
-            entrantCount={entrantCount}
-            cornerColor1={cornerColor1}
-            cornerColor2={cornerColor2}
-            cornerDesign={cornerDesign}
-            useDualColors={useDualColors}
-            showFlags={showFlags}
-            backgroundImage={backgroundImage}
-            logoImage={logoImage}
-          />
+        <Top8Display
+          top8={top8}
+          tournamentName={tournamentName}
+          entrantCount={entrantCount}
+          cornerColor1={cornerColor1}
+          cornerColor2={cornerColor2}
+          cornerDesign={cornerDesign}
+          useDualColors={useDualColors}
+          showFlags={showFlags}
+          backgroundImage={backgroundImage}
+          logoImage={logoImage}
+        />
       </div>
 
-      {/* Generated Image Display - Right-click to Save As */}
       {generatedImageUrl && (
         <div style={{ 
           marginTop: '2rem', 
           textAlign: 'center',
           padding: '1rem',
           background: 'rgba(0, 0, 0, 0.8)',
-          borderRadius: '8px'
+          borderRadius: '8px',
+          width: 'auto',
+          display: 'inline-block'
         }}>
           <h3 style={{ color: '#fff', marginBottom: '1rem' }}>Generated Image</h3>
           <p style={{ color: '#ccc', marginBottom: '1rem', fontSize: '0.9rem' }}>
@@ -930,4 +930,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;

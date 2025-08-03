@@ -1,4 +1,5 @@
 import { TournamentData, Standing } from '../types';
+import { getFlagFromLocation } from './CountryToFlag';
 
 interface StartGGResponse {
   data?: {
@@ -36,6 +37,19 @@ export async function fetchTop8(slug: string): Promise<TournamentData> {
                 gamerTag
                 user {
                   id
+                  authorizations {
+                    externalUsername
+                    type
+                  }
+                  location {
+                    country
+                    state
+                    city
+                  }
+                  images {
+                    type
+                    url
+                  }
                   authorizations {
                     externalUsername
                     type
